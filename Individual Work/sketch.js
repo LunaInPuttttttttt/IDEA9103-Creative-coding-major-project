@@ -56,10 +56,8 @@ function draw() {
   //Update and display the first circle (clockwise rotation)
   circlePattern1.update();
   circlePattern1.displayFirstCircle();
-  circlePattern1.displayFirstCircle();
   //Update and display the second circle (counterclockwise rotation)
   circlePattern2.update();
-  circlePattern2.displaySecondCircle();
   circlePattern2.displaySecondCircle();
 }
 
@@ -534,7 +532,7 @@ class CirclePattern {
       stroke(220);
       strokeWeight(1);
       line(this.x, this.y, x1, y1);
-      fill(20);
+      fill(220);
       ellipse(x1, y1, 4);
     }
   }
