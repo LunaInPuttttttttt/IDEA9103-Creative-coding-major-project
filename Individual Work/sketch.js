@@ -12,6 +12,13 @@ let gradientWithRays;
 let ring;
 let circlePattern1;
 let circlePattern2;
+//Add a gif to enrich the background
+let gif;
+
+//Preload gif
+function preload() {
+  gif = loadImage('assets/giphy.gif');
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -32,6 +39,7 @@ function setup() {
 
 function draw() {
   background(128, 139, 140);
+  image(gif, 0, 0, width, height);
 
   //Displays and adds smoothing effects
   radiantCircle.displayWithEasing();
@@ -61,7 +69,7 @@ class RadiantCircle {
     this.cx = cx;
     this.cy = cy;
     this.numRays = 30;
-    this.maxRadius = 65;
+    this.maxRadius = 80;
     this.innerRadius = 20;
     this.scaleFactor = 0.8; //The current scaling factor
     this.targetScaleFactor = 1.2; //The expected scaling factor
@@ -84,7 +92,7 @@ class RadiantCircle {
         let x = this.cx + cos(angle) * r;
         let y = this.cy + sin(angle) * r;
         let dotSize = map(r, this.innerRadius, this.maxRadius, 3, 8);
-        fill(0);
+        fill(220);
         noStroke();
         ellipse(x, y, dotSize, dotSize);
       }
@@ -125,16 +133,16 @@ class RadiantCircleWithRays {
     this.currentLengthFactor = lerp(this.currentLengthFactor, this.targetLengthFactor, this.easingSpeed);
 
     //Draw the background circle
-    fill(150, 170, 180, 200);
+    fill(55, 103, 149, 200);
     ellipse(this.cx - 30, this.cy - 30, 50, 50);
-    fill(173, 135, 134);
+    fill(255, 208, 111);
     ellipse(this.cx + 30, this.cy + 10, 40, 40);
-    fill(213, 177, 146);
+    fill(114, 188, 213);
     ellipse(this.cx - 30, this.cy + 30, 20, 20);
 
     //Draws radiations, with lengths scaled by currentLengthFactor
-    strokeWeight(1);
-    stroke(0);
+    strokeWeight(1.5);
+    stroke(220);
     for (let i = 0; i < this.numRays; i++) {
       let angle = map(i, 0, this.numRays, 0, TWO_PI);
       let endX = this.cx + cos(angle) * this.baseMaxRadius * this.currentLengthFactor;
@@ -143,10 +151,10 @@ class RadiantCircleWithRays {
     }
 
     //Draw the center circle
-    fill(0);
+    fill(220);
     noStroke();
     ellipse(this.cx, this.cy, 50, 50);
-    fill(128, 139, 140);
+    fill(0);
     ellipse(this.cx, this.cy, 40, 40);
   }
 }
@@ -184,7 +192,7 @@ class RadiantRaysWithConcentricCircles {
       let angle = map(i, 0, this.numRays, 0, TWO_PI);
       let endX = this.cx + cos(angle) * this.maxRadius;
       let endY = this.cy + sin(angle) * this.maxRadius;
-      stroke(0);
+      stroke(220);
       strokeWeight(1);
       line(this.cx, this.cy, endX, endY);
     }
@@ -192,10 +200,10 @@ class RadiantRaysWithConcentricCircles {
 
   getGradientColor(index, totalSegments) {
     let colors = [
-      color(231,209,170), color(195,151,125), color(173,135,134),
-      color(135,134,138), color(181,114,127), color(117,141,160),
-      color(142,166,171), color(165,186,187), color(224,236,217),
-      color(230,229,204)
+      color(55, 103, 149),
+      color(114, 188, 213),
+      color(255, 208, 111),
+      color(231, 98, 84)
     ];
     
     let segment = index / (totalSegments / (colors.length - 1));
@@ -233,7 +241,7 @@ class OuterDots {
       //Use lerp to make the size of each point gradually approach the target size
       this.currentSizes[i] = lerp(this.currentSizes[i], this.targetSizes[i], this.easingSpeed);
 
-      fill(0);
+      fill(220);
       noStroke();
       ellipse(dotX, dotY, this.currentSizes[i], this.currentSizes[i]);
     }
@@ -268,8 +276,8 @@ class RadiantRaysWithTargetCircles {
    
     //Draw the concentric circle
     noFill();
-    stroke(0);
-    strokeWeight(0.3);
+    stroke(220);
+    strokeWeight(1);
     for (let i = 40; i <= 120; i += 20) {
       ellipse(this.cx, this.cy, i, i);
     }
@@ -277,10 +285,10 @@ class RadiantRaysWithTargetCircles {
 
   getGradientColor(index, totalSegments) {
     let colors = [
-      color(231,209,170), color(195,151,125), color(173,135,134),
-      color(135,134,138), color(181,114,127), color(117,141,160),
-      color(142,166,171), color(165,186,187), color(224,236,217),
-      color(230,229,204)
+      color(55, 103, 149),
+      color(114, 188, 213),
+      color(255, 208, 111),
+      color(231, 98, 84)
     ];
     
     let segment = index / (totalSegments / (colors.length - 1));
@@ -298,8 +306,8 @@ class CrossLines {
   }
 
   display() {
-    stroke(0);
-    strokeWeight(0.5);
+    stroke(220);
+    strokeWeight(1);
     line(this.cx - this.lineLength, this.cy, this.cx + this.lineLength, this.cy);
     line(this.cx, this.cy - this.lineLength, this.cx, this.cy + this.lineLength);
   }
@@ -324,11 +332,14 @@ class OuterDots2 {
       let dotY = this.cy + sin(angle) * this.radius;
       let dotX2 = this.cx + sin(angle) * this.radius / 1.5;
       let dotY2 = this.cy + cos(angle) * this.radius / 1.5;
+      let dotX3 = this.cx + sin(angle) * this.radius * 1.2;
+      let dotY3 = this.cy + cos(angle) * this.radius * 1.2;
 
-      fill(0);
+      fill(220);
       noStroke();
       ellipse(dotX, dotY, 8, 8);
       ellipse(dotX2, dotY2, 5, 5);
+      ellipse(dotX3, dotY3, 12, 12);
     }
   }
 }
@@ -340,10 +351,10 @@ class CircularGradientWithRays {
     this.cy = cy;
     this.r = r;
     this.colors = [
-      color(231, 209, 170), color(195, 151, 125), color(173, 135, 134),
-      color(135, 134, 138), color(101, 114, 127), color(117, 141, 160),
-      color(142, 166, 171), color(165, 186, 187), color(224, 236, 217),
-      color(230, 229, 204)
+      color(55, 103, 149),
+      color(114, 188, 213),
+      color(255, 208, 111),
+      color(231, 98, 84)
     ]; //Gradient color array
 
     this.rotationAngle = 0; //The initial rotation Angle
@@ -375,7 +386,7 @@ class CircularGradientWithRays {
     }
 
     //Draw rays
-    stroke(0);
+    stroke(220);
     strokeWeight(1);
     for (let i = 0; i < 60; i++) {
       let angle = i * (TWO_PI / 60) + this.rotationAngle;
@@ -397,10 +408,7 @@ class GradientRingWithLinesAndHoles {
     this.animationSpeed = 0.05; //Control the speed of magnification and reduction
     this.time = 0; //The time variable used to control for zooming in and out
     this.colors = [
-      color(240, 240, 240), color(180, 180, 180), color(100, 100, 100),
-      color(60, 60, 60), color(173,135,134), color(135,134,138),
-      color(101,114,127), color(117,141,160), color(142,166,171),
-      color(165,186,187), color(224,236,217)
+      color(30, 70, 110), color(55, 103, 149), color(82, 143, 173), color(170, 220, 224)
     ];
   }
 
@@ -426,12 +434,12 @@ class GradientRingWithLinesAndHoles {
 
     //Draw inner circles and lines
     let innerRadius = (this.outerR - this.thickness) * 1.3 / 2;
-    fill(128, 139, 140);
+    fill(0);
     noStroke();
     ellipse(this.cx, this.cy, (this.outerR - this.thickness) * 1.3);
 
     //Draw rays
-    stroke(0);
+    stroke(220);
     for (let i = 0; i < numSegments; i++) {
       let angle = i * angleStep;
       let xStart = this.cx + cos(angle) * innerRadius;
@@ -464,10 +472,7 @@ class CirclePattern {
     this.angleOffset = 0;
     this.rotationDirection = rotationDirection; //Control the rotation direction, 1 is clockwise, -1 is counterclockwise
     this.colors = [
-      color(231, 209, 170), color(195, 151, 125), color(173, 135, 134),
-      color(135, 134, 138), color(181, 114, 127), color(117, 141, 160),
-      color(142, 166, 171), color(165, 186, 187), color(224, 236, 217),
-      color(230, 229, 204)
+      color(255, 230, 183), color(255, 208, 111), color(247, 170, 88), color(231, 98, 84)
     ];
   }
 
@@ -479,15 +484,15 @@ class CirclePattern {
 
   displayFirstCircle() {
     let angleStep = TWO_PI / this.points;
-    fill(173, 135, 134);
+    fill(114, 188, 213);
     noStroke();
     ellipse(this.x - 20, this.y - 20, this.radius * 0.5, this.radius * 0.5);
 
-    fill(213, 177, 146);
+    fill(255, 208, 111);
     noStroke();
     ellipse(this.x + 10, this.y - 10, this.radius * 0.7, this.radius * 0.7);
 
-    fill(150, 170, 180);
+    fill(231, 98, 84);
     noStroke();
     ellipse(this.x - 20, this.y + 20, this.radius * 1.1, this.radius * 1.1);
 
@@ -495,8 +500,9 @@ class CirclePattern {
       let angle = i * angleStep + this.angleOffset;
       let x1 = this.x + cos(angle) * this.radius;
       let y1 = this.y + sin(angle) * this.radius;
-      stroke(20);
-      fill(20);
+      stroke(220);
+      strokeWeight(1);
+      fill(220);
       line(this.x, this.y, x1, y1);
       ellipse(x1, y1, 4);
     }
@@ -525,8 +531,8 @@ class CirclePattern {
       let angle = i * angleStep + this.angleOffset; //Application of rotation Angle
       let x1 = this.x + cos(angle) * this.radius;
       let y1 = this.y + sin(angle) * this.radius;
-      stroke(20);
-      strokeWeight(0.5);
+      stroke(220);
+      strokeWeight(1);
       line(this.x, this.y, x1, y1);
       fill(20);
       ellipse(x1, y1, 4);
