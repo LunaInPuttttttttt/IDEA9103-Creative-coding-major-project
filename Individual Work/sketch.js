@@ -7,6 +7,12 @@ let radiantRaysWithTargetCircles;
 let crossLines;
 let outerDots2;
 
+//Add more figures
+let gradientWithRays;
+let ring;
+let circlePattern1;
+let circlePattern2;
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   background(128, 139, 140);
@@ -18,6 +24,10 @@ function setup() {
   radiantRaysWithTargetCircles = new RadiantRaysWithTargetCircles(width / 2, height / 1.5);
   crossLines = new CrossLines(width / 2, height / 1.5, 60);
   outerDots2 = new OuterDots2(width / 2, height / 1.5, 65, 12);
+  gradientWithRays = new CircularGradientWithRays(width/ 1.5, height/ 2.2, 80);
+  ring = new GradientRingWithLinesAndHoles(width/ 3.2, height/ 2.2, 80, 20); 
+  circlePattern1 = new CirclePattern(width / 1.2, height / 4, 60, 20, 1);  //Rotate clockwise
+  circlePattern2 = new CirclePattern(width / 1.2, height / 1.5, 80, 30, -1); //Rotate counterclockwise
 }
 
 function draw() {
@@ -31,6 +41,18 @@ function draw() {
   radiantRaysWithTargetCircles.display();
   crossLines.display();
   outerDots2.displayWithRotation();
+  gradientWithRays.display();
+  ring.update();
+  ring.display();
+
+  //Update and display the first circle (clockwise rotation)
+  circlePattern1.update();
+  circlePattern1.displayFirstCircle();
+  circlePattern1.displayFirstCircle();
+  //Update and display the second circle (counterclockwise rotation)
+  circlePattern2.update();
+  circlePattern2.displaySecondCircle();
+  circlePattern2.displaySecondCircle();
 }
 
 //Added timing scaling effect for RadiantCircle
@@ -290,7 +312,7 @@ class OuterDots2 {
     this.radius = radius;
     this.numDots = numDots;
     this.rotationAngle = 0; //The initial rotation Angle
-    this.rotationSpeed = 0.02;
+    this.rotationSpeed = 0.02; //The initial rotation Speed
   }
 
   displayWithRotation() {
@@ -307,6 +329,207 @@ class OuterDots2 {
       noStroke();
       ellipse(dotX, dotY, 8, 8);
       ellipse(dotX2, dotY2, 5, 5);
+    }
+  }
+}
+
+//Add rotation effect for CircularGradientWithRays
+class CircularGradientWithRays {
+  constructor(cx, cy, r) {
+    this.cx = cx;
+    this.cy = cy;
+    this.r = r;
+    this.colors = [
+      color(231, 209, 170), color(195, 151, 125), color(173, 135, 134),
+      color(135, 134, 138), color(101, 114, 127), color(117, 141, 160),
+      color(142, 166, 171), color(165, 186, 187), color(224, 236, 217),
+      color(230, 229, 204)
+    ]; //Gradient color array
+
+    this.rotationAngle = 0; //The initial rotation Angle
+    this.rotationSpeed = 0.01; //The initial rotation Speed
+  }
+
+  display() {
+    this.rotationAngle += this.rotationSpeed; //Update rotation Angle
+
+    let numSegments = 200;
+    let angleStep = TWO_PI / numSegments;
+
+    //Draw a gradient circle
+    for (let i = 0; i < numSegments; i++) {
+      let inter = map(i, 0, numSegments, 0, 1);
+      let colorIndex = floor(inter * (this.colors.length - 1));
+
+      //Handle color transitions to avoid going out of range
+      let nextIndex = min(colorIndex + 1, this.colors.length - 1);
+      let c = lerpColor(this.colors[colorIndex], this.colors[nextIndex], (inter * (this.colors.length - 1)) % 1);
+
+      fill(c);
+      noStroke();
+
+      let startAngle = i * angleStep + this.rotationAngle;
+      let endAngle = (i + 1) * angleStep + this.rotationAngle;
+
+      arc(this.cx, this.cy, this.r * 2, this.r * 2, startAngle, endAngle, PIE);
+    }
+
+    //Draw rays
+    stroke(0);
+    strokeWeight(1);
+    for (let i = 0; i < 60; i++) {
+      let angle = i * (TWO_PI / 60) + this.rotationAngle;
+      let xEnd = this.cx + cos(angle) * this.r;
+      let yEnd = this.cy + sin(angle) * this.r;
+      line(this.cx, this.cy, xEnd, yEnd);
+    }
+  }
+}
+
+//Added timing scaling effect for GradientRingWithLinesAndHoles
+class GradientRingWithLinesAndHoles {
+  constructor(cx, cy, outerR, thickness) {
+    this.cx = cx;
+    this.cy = cy;
+    this.outerR = outerR;
+    this.baseOuterR = outerR; //The initial radius, used for zooming in and out
+    this.thickness = thickness;
+    this.animationSpeed = 0.05; //Control the speed of magnification and reduction
+    this.time = 0; //The time variable used to control for zooming in and out
+    this.colors = [
+      color(240, 240, 240), color(180, 180, 180), color(100, 100, 100),
+      color(60, 60, 60), color(173,135,134), color(135,134,138),
+      color(101,114,127), color(117,141,160), color(142,166,171),
+      color(165,186,187), color(224,236,217)
+    ];
+  }
+
+  update() {
+    //The outerR is adjusted smoothly by the sine function to zoom in and out
+    this.time += this.animationSpeed;
+    this.outerR = this.baseOuterR + sin(this.time) * 20; //The amplitude is 20, resulting in an amplification and reduction effect
+  }
+
+  display() {
+    let numSegments = 100;
+    let angleStep = TWO_PI / numSegments;
+    
+    //Draw the gradient ring
+    for (let i = 0; i < numSegments; i++) {
+      let inter = map(i, 0, numSegments, 0, 1);
+      let colorIndex = floor(inter * (this.colors.length - 1));
+      let c = lerpColor(this.colors[colorIndex], this.colors[colorIndex + 1], (inter * (this.colors.length - 1)) % 1);
+      fill(c);
+      noStroke();
+      arc(this.cx, this.cy, this.outerR * 2, this.outerR * 2, i * angleStep, (i + 1) * angleStep, PIE);
+    }
+
+    //Draw inner circles and lines
+    let innerRadius = (this.outerR - this.thickness) * 1.3 / 2;
+    fill(128, 139, 140);
+    noStroke();
+    ellipse(this.cx, this.cy, (this.outerR - this.thickness) * 1.3);
+
+    //Draw rays
+    stroke(0);
+    for (let i = 0; i < numSegments; i++) {
+      let angle = i * angleStep;
+      let xStart = this.cx + cos(angle) * innerRadius;
+      let yStart = this.cy + sin(angle) * innerRadius;
+      let xEnd = this.cx + cos(angle) * this.outerR;
+      let yEnd = this.cy + sin(angle) * this.outerR;
+      line(xStart, yStart, xEnd, yEnd);
+    }
+
+    //Draw random holes
+    for (let i = 0; i < 15; i++) {
+      let angle = random(TWO_PI);
+      let distance = random(innerRadius, this.outerR);
+      let holeX = this.cx + cos(angle) * distance;
+      let holeY = this.cy + sin(angle) * distance;
+      fill(128, 139, 140);
+      noStroke();
+      ellipse(holeX, holeY, random(3, 10));
+    }
+  }
+}
+
+//Add rotation effect for two circles
+class CirclePattern {
+  constructor(x, y, radius, points, rotationDirection) {
+    this.x = x;
+    this.y = y;
+    this.baseRadius = radius;
+    this.points = points;
+    this.angleOffset = 0;
+    this.rotationDirection = rotationDirection; //Control the rotation direction, 1 is clockwise, -1 is counterclockwise
+    this.colors = [
+      color(231, 209, 170), color(195, 151, 125), color(173, 135, 134),
+      color(135, 134, 138), color(181, 114, 127), color(117, 141, 160),
+      color(142, 166, 171), color(165, 186, 187), color(224, 236, 217),
+      color(230, 229, 204)
+    ];
+  }
+
+  //Update rotation and scaling effects
+  update() {
+    this.angleOffset += 0.01 * this.rotationDirection; //Control rotation direction
+    this.radius = this.baseRadius * (1 + 0.3 * sin(frameCount * 0.02)); //Smooth scaling is achieved using the sin function
+  }
+
+  displayFirstCircle() {
+    let angleStep = TWO_PI / this.points;
+    fill(173, 135, 134);
+    noStroke();
+    ellipse(this.x - 20, this.y - 20, this.radius * 0.5, this.radius * 0.5);
+
+    fill(213, 177, 146);
+    noStroke();
+    ellipse(this.x + 10, this.y - 10, this.radius * 0.7, this.radius * 0.7);
+
+    fill(150, 170, 180);
+    noStroke();
+    ellipse(this.x - 20, this.y + 20, this.radius * 1.1, this.radius * 1.1);
+
+    for (let i = 0; i < this.points; i++) {
+      let angle = i * angleStep + this.angleOffset;
+      let x1 = this.x + cos(angle) * this.radius;
+      let y1 = this.y + sin(angle) * this.radius;
+      stroke(20);
+      fill(20);
+      line(this.x, this.y, x1, y1);
+      ellipse(x1, y1, 4);
+    }
+  }
+
+  displaySecondCircle() {
+    let angleStep = TWO_PI / this.points;
+    
+    //Fill the sector with the gradient color
+    for (let i = 0; i < this.points; i++) {
+      let inter = map(i, 0, this.points, 0, 1); //Calculate the gradient position
+      let colorIndex = floor(inter * (this.colors.length - 1)); //Choose the color according to the scale
+
+      let gradientColor = lerpColor(this.colors[colorIndex], this.colors[colorIndex + 1], inter);
+      fill(gradientColor);
+      noStroke();
+      
+      //Draw each sector
+      let angleStart = i * angleStep + this.angleOffset;
+      let angleEnd = (i + 1) * angleStep + this.angleOffset;
+      arc(this.x, this.y, this.radius * 1.5, this.radius * 1.5, angleStart, angleEnd, PIE);
+    }
+
+    //Draw the connecting lines and dots
+    for (let i = 0; i < this.points; i++) {
+      let angle = i * angleStep + this.angleOffset; //Application of rotation Angle
+      let x1 = this.x + cos(angle) * this.radius;
+      let y1 = this.y + sin(angle) * this.radius;
+      stroke(20);
+      strokeWeight(0.5);
+      line(this.x, this.y, x1, y1);
+      fill(20);
+      ellipse(x1, y1, 4);
     }
   }
 }
